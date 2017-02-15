@@ -37,4 +37,3 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "enum_help", "~> 0.0.16"
 
 end
-sh
