@@ -1,15 +1,20 @@
+require 'qwer/layout_helper'
+
 module Qwer
   class Translater
-    def self.table_search(form_params, data_params, model)
+    DEFAULT_COL_NUM = 3
+    INIT_CONTER = 1
+
+    def table_search(form_params, data_params, model)
+      col_num = form_params[:col_num] ||= DEFAULT_COL_NUM
+      conter ||= INIT_CONTER
       html_str = "<form class='#{form_params[:form_class] ||= 'pjax-form'}' id='' action='#{form_params[:action] ||= model}' accept-charset='#{form_params[:charset] ||= 'UTF-8' }' method='#{form_params[:method] ||= 'get'}'>"
       html_str << "<input name='utf8' type='hidden' value='✓'>"
-      data_params.reject { |key, value| html_str << "<div class='form-group'><label class='control-label'>#{value}：</label><input class='form-control' type='search' name='#{key}' id='q_#{key}'></div>" }
-      html_str << "<a class='btn btn-success green' href='#{form_params[:new]}'>新增</a>" if form_params[:new]
-      html_str << "<button type='submit' class='btn btn-info' data-toggle='modal' data-target='#search_model'>查询</button>"
+      html_str << Qwer::Helper::HelperMethod.new(col_num, data_params.size).form_render(data_params, form_params).to_s
       html_str << "</form>"
     end
 
-    def self.table_data(table_head, dname, opt, datas, *args)
+    def table_data(table_head, dname, opt, datas, *args)
       html_str = "<table class='table table-striped table-hover' id='editable-sample'><thead><tr><th>#</th>"
       table_head.reject { |key, value| html_str << "<th>#{value}</th>" }
       html_str << "<th>操作</th></tr></thead><tbody>"
@@ -30,28 +35,30 @@ module Qwer
 
     private
 
-    def self.sequence(index)
+    # 设置数据表格序号
+    def sequence(index)
       (@page.to_i - 1) * @page_size.to_i + index + 1
     end
 
-    def self.edit?(opt)
+    # 判断是否是编辑方法
+    def edit?(opt)
       opt == "edit"
 
     end
 
-    def self.delete?(opt)
+    # 判断是否是删除方法
+    def delete?(opt)
       opt == "del"
     end
 
-    def self.send_keys data, key
+    # 获取给定的params的key的值
+    def send_keys data, key
       keys = key.to_s.split '.'
-      keys.each do |item|
-        data = data.send item if data.present?
-      end
-      data
+      keys.inject(data){|result, item| result.send item if result.present? }
     end
 
-    def self.opt_btns key, value, dname, data
+    # 操作列
+    def opt_btns key, value, dname, data
       if edit? key.to_s
         return "<a class='#{value[:css] ||= 'label label-success'}' href='/#{dname}/#{data.id.to_s}/edit'>#{value[:name] ||= '编辑'}</a>"
       elsif delete? key.to_s
