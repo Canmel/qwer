@@ -33,7 +33,7 @@ Or install it yourself as:
 
 - 调用方法table_seach,创建查询项
 ```
-    model.table_seach({
+    model.table_seach({    col_num: 3,              ## 查讯项的列数
                           action: '/users',         ## 提交地址（默认为当前业务）
                           method: 'get',            ## 请求方式（默认为get）
                           form_class: 'form-inline text-right',     ## 表单样式：　默认（pjax-form）
@@ -41,6 +41,14 @@ Or install it yourself as:
                           new: '/companies/new'     ## 新建按钮指向地址（可选,不传则没有新建按钮）
                       }, {
                           'q[name_cont]': '名称',    ## 查询项name及其显示名称
+                          'q[status_eq]': { name: '状态', type: 'select', data: [ "all", { k: '1', v: '正常' }, { k: 0, v: '删除' } ] }
+                          # 如果key为一个Hash，则name为必选， 
+                          #     type: 
+                          #         不填写：          默认为input
+                          #         select :        下拉框
+                          #         css:            标明css样式
+                          #         data:           下拉option数据内容
+                          #             数据类型为数组，单个数据为一个Hash， 以k,和v 表示 ， all表示添加一个全部的option
                       })
 ```
 
