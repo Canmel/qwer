@@ -8,8 +8,9 @@ module Qwer
     # page_size:  单页记录数
     # page:       当前页数
     # model:      当前业务model
-    def initialize(model, page_size, page)
+    def initialize(model, query, page_size, page)
       @model = model
+      @query = query
       @page_size = page_size
       @page = page
     end
@@ -23,7 +24,7 @@ module Qwer
     # data:     要查询的内容
     # args :    其他参数
     def table_seach(params, data,*args)
-      html_str = Translater.new.table_search(params, data, @model)
+      html_str = Translater.new.table_search(params, @query, data, @model)
       html_str.html_safe
     end
 

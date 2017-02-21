@@ -2,15 +2,15 @@ require 'qwer/layout_helper'
 
 module Qwer
   class Translater
-    DEFAULT_COL_NUM = 3
-    INIT_CONTER = 1
+    DEFAULT_COL_NUM = 3               #　查询 table 默认列数
+    INIT_CONTER = 1                   #  计数器从１开始
 
-    def table_search(form_params, data_params, model)
+    def table_search(form_params, query, data_params, model)
       col_num = form_params[:col_num] ||= DEFAULT_COL_NUM
       conter ||= INIT_CONTER
-      html_str = "<form class='#{form_params[:form_class] ||= 'pjax-form'}' id='' action='#{form_params[:action] ||= model}' accept-charset='#{form_params[:charset] ||= 'UTF-8' }' method='#{form_params[:method] ||= 'get'}'>"
+      html_str = "<form class='#{form_params[:form_class] ||= 'pjax-form'}' id='company_search' action='#{form_params[:action] ||= model}' accept-charset='#{form_params[:charset] ||= 'UTF-8' }' method='#{form_params[:method] ||= 'get'}'>"
       html_str << "<input name='utf8' type='hidden' value='✓'>"
-      html_str << Qwer::Helper::HelperMethod.new(col_num, data_params.size).form_render(data_params, form_params).to_s
+      html_str << Qwer::Helper::HelperMethod.new(col_num, query, data_params.size, model).form_render(data_params, form_params).to_s
       html_str << "</form>"
     end
 

@@ -11,9 +11,11 @@ module Qwer
       # 查询项布局初始化
       # col_num : table的列数
       # data_size : 查询项数量
-      def initialize(col_num, data_size)
+      def initialize(col_num, query, data_size, model)
         @col_num = col_num
+        @query = query
         @data_size = data_size
+        @model = model
       end
 
       def form_render data_params, form_params
@@ -22,16 +24,15 @@ module Qwer
         if data_params.size > DEFAULT_COL_NUM
           html_str << form_table_render(form_params, data_params)
         else
-
           data_params.reject { |key, value|
             if value.class.to_s.eql?('String')
-              html_str << "<div><label class='control-label'>#{value}：</label><input class='form-control' type='search' name='#{key}' id='q_#{key}'></div>"
+              html_str << "<label class='control-label'>#{value}：</label><input class='form-control' type='search' name='#{key}' id='q_#{key}' value='#{@query.send(get_send_key key)}'>"
             else
               html_str << "<div><label class='control-label'>#{value[:name]}：</label>"
               if select? value
                 html_str << add_selector(key, value)
               else
-                html_str << "<input class='#{value[:css] ||= 'form-control'}' type='search' name='#{key}' id='q_#{key}'>"
+                html_str << "<input class='#{value[:css]} form-control' type='search' name='#{key}' id='q_#{key}' value='#{@query.send(get_send_key key)}'>"
               end
               html_str << "</div>"
             end
@@ -49,7 +50,11 @@ module Qwer
         if value[:data].present?
           html_str << "<option value=''>全部</option>" if value[:data].include? 'all'
           value[:data].each do |item|
-            html_str << "<option value='#{item[:k]}'>#{item[:v]}</option>" if item.class.to_s.eql? 'Hash'
+            if @query.send(get_send_key key).present? && item.class.to_s.eql?('Hash') && (item[:k].to_s == @query.send(get_send_key key).to_s)
+              html_str << "<option value='#{item[:k]}' selected>#{item[:v]}</option>"
+            else
+              html_str << "<option value='#{item[:k]}'>#{item[:v]}</option>" if item.class.to_s.eql? 'Hash'
+            end
           end
         end
         html_str << "</select>"
@@ -65,19 +70,19 @@ module Qwer
           html_str << "<td style='border: none'>"
           html_str << "<div class='form-group'>"
           if value.class.to_s.eql? 'String'
-            html_str << "<label class='control-label'>#{value}：</label><input class='#{'form-control'}' type='search' name='#{key}' id='#{get_input_id key}'></div>"
+            html_str << "<label class='control-label'>#{value}：</label><input class='form-control' type='search' name='#{key}' id='#{get_input_id key}' value='#{@query.send(get_send_key key)}'></div>"
           else
             html_str << "<label class='control-label'>#{value[:name]}：</label>"
             if select? value
               html_str << add_selector(key, value)
             else
-              html_str << "<input class='#{value[:css] ||= 'form-control'}' type='search' name='#{key}' id='#{get_input_id key}'>"
+              input_value = @query.send(get_send_key key)
+              input_value = input_value.nil? ? "" : DateTime.parse(input_value.to_s).strftime('%Y-%m-%d').to_s
+              html_str << "<input class='#{value[:css]} form-control' type='search' name='#{key}' id='#{get_input_id key}' value='#{input_value}'>"
             end
           end
           html_str << "</div>"
-
           html_str << "</td>"
-
           if !tr_end? conter
             # 一行tr 还没有结束 需要填补td
             html_str << add_td_or_blank_td(form_param, conter, total)
@@ -108,7 +113,8 @@ module Qwer
       end
 
       def button_render form_params
-        html_str = "<a class='btn btn-success green' href='#{form_params[:new]}'>新增</a>" if form_params[:new]
+        new_url = "/#{@model}/new"
+        html_str = "<a class='btn btn-success green' href='#{form_params[:new] ||= new_url }'>新增</a>" if form_params[:new]
         html_str << "<button type='submit' class='btn btn-info' data-toggle='modal' data-target='#search_model'>查询</button>"
       end
 
@@ -165,6 +171,10 @@ module Qwer
         html_str
       end
 
+      def get_send_key key
+        result = key.to_s.split('[').last
+        result = result.split(']').first
+      end
     end
   end
 end
