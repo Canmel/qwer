@@ -114,7 +114,7 @@ module Qwer
 
       def button_render form_params
         new_url = "/#{@model}/new"
-        html_str = "<a class='btn btn-success green' href='#{form_params[:new] ||= new_url }'>新增</a>" if form_params[:new]
+        html_str = "<a class='btn btn-success green' href='#{form_params[:new] ||= new_url }'>新增</a>" if !(form_params[:new] == false)
         html_str << "<button type='submit' class='btn btn-info' data-toggle='modal' data-target='#search_model'>查询</button>"
       end
 

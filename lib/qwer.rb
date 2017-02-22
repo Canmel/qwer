@@ -1,5 +1,8 @@
 require "qwer/version"
 require 'qwer/translater'
+require 'kaminari/helpers/helper_methods'
+require 'kaminari/helpers/tags'
+require 'kaminari/helpers/paginator'
 
 module Qwer
   class Tmodel
@@ -41,9 +44,20 @@ module Qwer
     # 分页
     # 使用kaminary分页
     # datas   查询的数据
-    def pager(datas)
-      html_str = "共#{datas.total_count}条 #{datas.total_pages}页#{paginate @companies}"
-      html_str.html_safe
-    end
+    # def pager datas, **options
+    # paginate_class = Kaminari::Helpers::Paginator
+    #
+    # options[:total_pages] = datas.total_pages
+    # options.reverse_merge! current_page: datas.current_page, per_page: datas.limit_value, remote: false
+    #
+    #
+    # paginator = paginate_class.new self, options
+    # p "=========================1=="
+    # p paginator.to_s
+    # p "=========================2=="
+    # html_str = "共#{datas.total_count}条 #{datas.total_pages}页#{paginate datas}"
+    # html_str = Translater.new.pager(datas)
+    # html_str.html_safe
+    # end
   end
 end
